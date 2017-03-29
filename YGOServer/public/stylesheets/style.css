@@ -1,0 +1,18 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.form-signin {
+    width: 25%;
+    text-align: center;
+    margin: 170px auto 0 auto;
+}
+
+input {
+    margin-bottom: 10px;
+}

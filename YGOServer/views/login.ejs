@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <% include header  %>
+  </head>
+  <body>
+
+    <% include admin/Navigation %>
+
+    <form class="form-signin">
+      <h2 class="form-signin-heading">请登录后台</h2>
+      <input type="text" id="name" placeholder="请输入用户名" required autofocus autocomplete="off" class="form-control">
+      <input type="password" id="password" value="" placeholder="请输入密码" required autocomplete="off" class="form-control">
+      <button type="button" class="btn btn-lg btn-primary btn-block" id="btn">登录</button>
+      <div class="alert alert-danger alert-dismissible fade in login-info hidden" role="alert">
+      </div>
+    </form>
+  </body>
+</html>
+
+<script type="text/javascript">
+  $(function() {
+    $('#btn').on('click',function () {
+      var username = $('#name').val();
+      var password = $("#password").val();
+      var info = $(".login-info");
+      var data = {
+        name: username,
+        password: password
+      }
+      console.log('username == ',data)
+      fetch('/login',{
+        method:'POST',
+        body: JSON.stringify(data),
+        headers: new Headers({ "Content-Type": "application/json" })// add headers
+      }).then(function (response) {
+        if (response.status == 201) {
+          info.removeClass('hidden').text("用户不存在");
+        }
+        else if(response.status == 200) {
+          window.location.href = '/admin';
+        }
+      }).catch(function (err) {
+
+      })
+
+    })
+  })
+</script>
