@@ -2,11 +2,11 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <% include header  %>
+    <% include header.html  %>
   </head>
   <body>
 
-    <% include admin/Navigation %>
+    <% include admin/Navigation.html %>
 
     <form class="form-signin">
       <h2 class="form-signin-heading">请登录后台</h2>
@@ -42,7 +42,7 @@
           window.location.href = '/admin';
         }
       }).catch(function (err) {
-
+          info.removeClass('hidden').text("系统异常，请稍候重试");
       })
 
     })
