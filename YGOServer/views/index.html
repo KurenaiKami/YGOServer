@@ -11,14 +11,27 @@
   </head>
   <body>
     <% include admin/Navigation.html %>
-    <div class="container">
+    <div class="container-top">
 
-      <script id="editor" type="text/plain" style="width:1024px;height:500px;"></script>
+      <ol class="breadcrumb">
+        <li><a href="#">首页</a></li>
+        <li class="active">新增DL资讯</li>
+      </ol>
+
+      <div class="row">
+        <div class="col-md-2">
+          <% include sider.html %>
+        </div>
+
+        <div class="col-md-6">
+          <% include dlEditor.html %>
+        </div>
+
+        <div class="col-md-4">
+
+        </div>
+      </div>
     </div>
+
   </body>
 </html>
-
-<script type="text/javascript">
-  var ue = UE.getEditor('editor');
-  var content = ue.getContent();
-</script>

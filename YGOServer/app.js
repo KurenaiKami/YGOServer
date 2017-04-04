@@ -5,6 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var ejs = require('ejs');
+var fileUpload = require('express-fileupload');
 
 var ueditor = require("ueditor")
 
@@ -28,6 +29,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.engine('.html', ejs.__express);
 app.set('view engine', 'html');
 
+// default options
+app.use(fileUpload());
 
 //ueditor
 app.use("/ueditor/ue", ueditor(path.join(__dirname, 'public'), function (req, res, next) {
