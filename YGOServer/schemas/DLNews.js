@@ -9,7 +9,8 @@ var DLSchema = new mongoose.Schema({
     type: Array,
     'default': []
   },
-	content: String
+	content: String,
+	time: String
 })
 
 module.exports = mongoose.model('dl_news', DLSchema);

@@ -35,7 +35,7 @@ app.use(fileUpload());
 //ueditor
 app.use("/ueditor/ue", ueditor(path.join(__dirname, 'public'), function (req, res, next) {
     //客户端上传文件设置
-    var imgDir = '/images/card'
+    var imgDir = '/images/'
      var ActionType = req.query.action;
     if (ActionType === 'uploadimage' || ActionType === 'uploadfile' || ActionType === 'uploadvideo') {
         var file_url = imgDir;//默认图片上传地址
@@ -90,8 +90,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-
 
 
 module.exports = app;

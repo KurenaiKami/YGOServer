@@ -10,6 +10,8 @@ var User = require('../schemas/user');
 var DLNews = require('../schemas/DLNews')
 var image_list = [];
 
+var url = "http://192.168.0.130:3000"
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	res.redirect('/login');
@@ -17,7 +19,7 @@ router.get('/', function(req, res, next) {
 
 
 router.get('/login',function (req,res) {
-	res.render('login',{title:'121212'})
+	res.render('login',{title:'title'})
 })
 
 //登录后台
@@ -43,7 +45,6 @@ router.get("/admin",function(req,res){
 
 
 router.post("/upload",function (req,res) {
-	image_list = [];
 	if (!req.files) {
 		return res.status(400).send('No files were uploaded')
 	}
@@ -56,7 +57,7 @@ router.post("/upload",function (req,res) {
     if (err)
       console.log(err);
 
-		image_list.push("127.0.0.1:3000/images/" + req.body.name);
+		image_list.push(url +"/images/" + req.body.name);
     res.send('File uploaded!');
   });
 
@@ -71,21 +72,38 @@ router.post('/dlnews',function(req,res){
 		content: req.body.content,
 		image_list: image_list,
 		news_path: req.body.webpath,
+		time: new Date().Format("yyyy-MM-dd")
 	})
 	console.log(dl);
 	dl.save(function(err){
 		if (err) {
 			console.log(err);
 		}
+		image_list = [];
+		res.send(200);
 	});
-	res.send(200);
 })
+
+Date.prototype.Format = function (fmt) { //author: meizz
+    var o = {
+        "M+": this.getMonth() + 1, //月份
+        "d+": this.getDate(), //日
+        "h+": this.getHours(), //小时
+        "m+": this.getMinutes(), //分
+        "s+": this.getSeconds(), //秒
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+        "S": this.getMilliseconds() //毫秒
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
 
 
 router.get('/news',function (req,res) {
 	var query_doc ={news_path: req.query.key};
 	console.log(query_doc);
-	console.log('***');
 	DLNews.find(query_doc,function (err,doc) {
 		if (err) {
 			console.log(err);
@@ -96,6 +114,22 @@ router.get('/news',function (req,res) {
 		res.render('news',{content: doc[0].content })
 	})
 
+})
+
+
+
+
+
+//DLINKERS 客户端
+router.get('/getDlNews',function (req,res) {
+	DLNews.find({},function (err,docs) {
+		if (err) {
+			console.log(err);
+			return res.send(404);
+		}
+
+		res.json({'code':200,"newslist": docs})
+	})
 })
 
 
