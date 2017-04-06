@@ -39,8 +39,36 @@ router.post('/login',function (req,res) {
 
 })
 
+
+
 router.get("/admin",function(req,res){
-	res.render('index', { title: 'Express' });
+	console.log('id====',req.query);
+	var url = '/dlnews';
+	var title = '新增DL资讯';
+	switch (req.query.id) {
+		case "dl":
+				url = '/dlnews';
+				title = '新增DL资讯';
+			break;
+		case 'ocg':
+				url = '/ocgnews';
+				title = '新增OCG资讯';
+			break;
+		case 'video':
+				url = '/videonews';
+				title = '新增视频资讯';
+			break;
+		case 'gonglue':
+				url = '/gonglueadd';
+				title = '新增攻略';
+			break;
+		case 'card':
+				url = '/cardadd';
+				title = '新增卡组分享';
+			break;
+		default:
+	}
+	res.render('index', { URL: url ,title: title});
 })
 
 
@@ -77,12 +105,16 @@ router.post('/dlnews',function(req,res){
 	console.log(dl);
 	dl.save(function(err){
 		if (err) {
-			console.log(err);
+			res.json({code: '201',error: err});
 		}
 		image_list = [];
 		res.send(200);
 	});
 })
+
+
+
+
 
 Date.prototype.Format = function (fmt) { //author: meizz
     var o = {

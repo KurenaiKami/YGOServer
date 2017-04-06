@@ -3,7 +3,7 @@
 <div class="container">
 
   <form class="form">
-    <h2 class="form-signin-heading">新增DL资讯</h2>
+    <h2 class="form-signin-heading"><%= title%></h2>
     <input type="text" id="title" placeholder="标题" required autofocus autocomplete="off" class="form-control">
     <input type="text" id="author" value="" placeholder="作者" required autocomplete="off" class="form-control">
     <input type="text" id="webpath" value="" placeholder="webview地址id" required autocomplete="off" class="form-control">
@@ -46,6 +46,8 @@
 $(function() {
   var ue = UE.getEditor('editor');
   $('#btn_dl_git').on('click',function () {
+    var info = $(".login-info");
+
     var title = $('#title').val();
     var author = $("#author").val();
     var webpath= $("#webpath").val();
@@ -59,14 +61,14 @@ $(function() {
     }
 
     console.log('username == ',data)
-    fetch('/dlnews',{
+    fetch('<%= URL %>',{
       method:'POST',
       body: JSON.stringify(data),
       headers: new Headers({ "Content-Type": "application/json" })// add headers
     }).then(function (response) {
-      console.log(response);
+        info.removeClass('hidden').text("添加成功");
     }).catch(function (err) {
-        console.log("系统异常，请稍候重试");
+        info.removeClass('hidden').text("服务器异常");
     })
 
   })
