@@ -1,0 +1,23 @@
+<link rel="stylesheet" href="/stylesheets/view.css">
+<script src="javascripts/bootstrap-paginator.js" charset="utf-8"></script>
+<div class="project-list" >
+  <table class="table table-hover" >
+  	<tbody ng-repeat="item in newslist">
+    	<tr>
+          <td class="project-title">
+              <a ng-href="/viewnews?id={{item._id}}">{{item.title}}</a>
+              <br/>
+              <small>作者 {{item.author}}  </small>
+          </td>
+          <td class="project-actions">
+              <a ng-href="/viewnews?id={{item._id}}" class="btn btn-default marginTB-xs"><i class="fa fa-folder"></i>  查看 </a>
+              <a href="/removenews?id={{item._id}}" class="btn btn-danger marginTB-xs"><i class="fa fa-times-circle m-right-xs"></i> 删除 </a>
+          </td>
+      </tr>
+
+  	</tbody>
+  </table>
+
+  <ul class="pagination" id="pageui">
+  </ul>
+</div>

@@ -1,0 +1,84 @@
+<link rel="stylesheet" href="stylesheets/font-awesome.min.css">
+
+<div class="container">
+  <form class="form">
+    <h2 class="form-signin-heading">新增DL资讯</h2>
+    <input type="text" id="title" placeholder="标题" required autofocus autocomplete="off" class="form-control">
+    <input type="text" id="author" value="" placeholder="作者" required autocomplete="off" class="form-control">
+    <input type="text" id="webpath" value="" placeholder="webview地址id" required autocomplete="off" class="form-control">
+    <input type="text" id="type" value="" placeholder="新闻类型(dl,ocg,gonglue,card)" required autocomplete="off" class="form-control">
+
+    <div class="panel panel-default" >
+      <div class="panel-heading">展示图片(最多三张)</div>
+
+      <input name="files" id="files" type="file" />
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">内容</div>
+      <script id="editor" type="text/plain" style="height:500px;">
+
+      </script>
+    </div>
+
+    <button type="button" class="btn btn-lg btn-primary" id="btn_dl_git">提交</button>
+  </form>
+
+</div>
+
+
+<script type="text/javascript">
+$(function() {
+  image_list = [];
+  $("#files").kendoUpload({
+     async: {
+       saveUrl: "/upload",
+       autoUpload: true
+     },
+     success: onSuccess,
+   });
+
+   function onSuccess(e) {
+     image_list.push("http://" + window.location.host +"/images/" + getFileInfo(e));
+     console.log(image_list);
+   }
+
+   function getFileInfo(e) {
+      return $.map(e.files, function(file) {
+          var info = file.name;
+          return info;
+      });
+   }
+
+
+   var ue = UE.getEditor('editor');
+   $('#btn_dl_git').on('click',function () {
+      var title = $('#title').val();
+      var author = $("#author").val();
+      var webpath= $("#webpath").val();
+      var content = ue.getContent();
+      var type = $("#type").val();
+      var data = {
+        title: title,
+        author: author,
+        webpath: webpath,
+        content:content,
+        image_list: image_list,
+        type: type
+      };
+      fetch('/dlnews',{
+        method:'POST',
+        body: JSON.stringify(data),
+        headers: new Headers({ "Content-Type": "application/json" })// add headers
+        }).then(function (response) {
+          image_list = [];
+        }).catch(function (err) {
+      })
+
+   })
+
+   $('#myTab li:eq(0) a').tab('show');
+
+})
+
+</script>

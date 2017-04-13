@@ -7,10 +7,7 @@ var bodyParser = require('body-parser');
 router.use(bodyParser.json());
 
 var User = require('../schemas/user');
-var DLNews = require('../schemas/DLNews')
-var image_list = [];
-
-var url = "http://192.168.0.130:3000"
+var DLNews = require('../schemas/DLNews');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -36,71 +33,60 @@ router.post('/login',function (req,res) {
 			 res.send(201)
 		}
 	})
-
 })
-
 
 
 router.get("/admin",function(req,res){
-	console.log('id====',req.query);
-	var url = '/dlnews';
-	var title = '新增DL资讯';
-	switch (req.query.id) {
-		case "dl":
-				url = '/dlnews';
-				title = '新增DL资讯';
-			break;
-		case 'ocg':
-				url = '/ocgnews';
-				title = '新增OCG资讯';
-			break;
-		case 'video':
-				url = '/videonews';
-				title = '新增视频资讯';
-			break;
-		case 'gonglue':
-				url = '/gonglueadd';
-				title = '新增攻略';
-			break;
-		case 'card':
-				url = '/cardadd';
-				title = '新增卡组分享';
-			break;
-		default:
-	}
-	res.render('index', { URL: url ,title: title});
+	res.render('index',{menu: 'news'});
 })
 
+router.get('/editnews',function (req,res) {
+	res.render('index',{menu: "list"})
+})
+
+router.get('/viewnews',function (req,res) {
+	var query_doc = {_id: req.query.id};
+	DLNews.find(query_doc,function (err,doc) {
+		console.log(doc);
+		if (err) {
+			res.json(err);
+		}
+		else {
+			res.render('index',{newsdata: doc[0],menu: "editor"})
+		}
+
+	})
+})
 
 router.post("/upload",function (req,res) {
 	if (!req.files) {
 		return res.status(400).send('No files were uploaded')
 	}
-
-	console.log(req.body);
-	var sampleFile = req.files.file;
-  var uploadPath = path.join(uploadDir, req.body.name);
+	var sampleFile = req.files.files;
+  var uploadPath = path.join(uploadDir, sampleFile.name);
 	// Use the mv() method to place the file somewhere on your server
   sampleFile.mv(uploadPath, function(err) {
     if (err)
+		{
       console.log(err);
-
-		image_list.push(url +"/images/" + req.body.name);
-    res.send('File uploaded!');
+			res.send(404);
+		}
+    res.send("");
   });
 
 })
 
-
+//******************************************DL相关*************************************
 //编辑资讯
 router.post('/dlnews',function(req,res){
 	var dl = new DLNews({
 		title: req.body.title,
 		author: req.body.author,
 		content: req.body.content,
-		image_list: image_list,
+		image_list: req.body.image_list,
 		news_path: req.body.webpath,
-		time: new Date().Format("yyyy-MM-dd")
+		time: new Date().Format("yyyy-MM-dd"),
+		type: req.body.type,
 	})
 	console.log(dl);
 	dl.save(function(err){
@@ -112,10 +98,73 @@ router.post('/dlnews',function(req,res){
 	});
 })
 
+router.post('/changedlnews',function (req,res) {
+	title = req.body.title;
+	author = req.body.author;
+	content = req.body.content;
+	image_list = req.body.image_list;
+	news_path = req.body.webpath;
+	type = req.body.type;
+	time = new Date().Format("yyyy-MM-dd");
+	id = req.body.id;
+	DLNews.update({_id: id},{"$set":{
+		title: title,
+		author: author,
+		content: content,
+		image_list: image_list,
+		news_path: news_path,
+		time: time,
+		type: type
+	} },function (err) {
+		if (err) {
+			res.json(err);
+		}
+		res.send("");
+	})
+
+})
 
 
 
+/////////////////////////////////////编辑相关///////////////////////////////////////
 
+//查看数据
+router.get('/getlist',function (req,res) {
+	var page = req.query.id || 1;
+	var query = DLNews.find({});
+	limitpage = 10;
+	query.skip((page - 1) * limitpage);
+	query.limit(limitpage);
+	query.exec(function (err,docs) {
+		if (err) {
+			res.json(err);
+		}
+		else {
+			DLNews.find(function (err,result) {
+				if (err) {
+					res.json(err);
+				}
+				else {
+					var  totalPages=0;
+					if(result.length%limitpage==0)
+					{
+					    totalPages=result.length/limitpage;
+					}
+					else
+					{
+					    totalPages=parseInt(result.length/limitpage)+1;
+					}
+					data = {currentpage: parseInt(page), totalpage: totalPages ,newslist: docs}
+					res.json(data);
+				}
+
+			})
+		}
+	})
+})
+
+
+//tools
 Date.prototype.Format = function (fmt) { //author: meizz
     var o = {
         "M+": this.getMonth() + 1, //月份
@@ -132,10 +181,9 @@ Date.prototype.Format = function (fmt) { //author: meizz
     return fmt;
 }
 
-
+//查看页面
 router.get('/news',function (req,res) {
 	var query_doc ={news_path: req.query.key};
-	console.log(query_doc);
 	DLNews.find(query_doc,function (err,doc) {
 		if (err) {
 			console.log(err);
@@ -147,13 +195,9 @@ router.get('/news',function (req,res) {
 	})
 
 })
-
-
-
-
-
 //DLINKERS 客户端
 router.get('/getDlNews',function (req,res) {
+	console.log("*****************");
 	DLNews.find({},function (err,docs) {
 		if (err) {
 			console.log(err);
