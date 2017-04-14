@@ -1,1 +1,81 @@
-<h2><%= newsdata.title%></h2>
+<link rel="stylesheet" href="stylesheets/font-awesome.min.css">
+<div class="container">
+  <form class="form">
+    <h2 class="form-signin-heading">编辑资讯</h2>
+    <input type="text" id="title-re" placeholder="标题" required autofocus autocomplete="off" class="form-control" value="<%= newsdata.title %>">
+    <input type="text" id="author-re"  placeholder="作者" required autocomplete="off" class="form-control" value="<%= newsdata.author %>">
+    <input type="text" id="webpath-re"  placeholder="webview地址id" required autocomplete="off" class="form-control" value="<%= newsdata.news_path %>">
+    <input type="text" id="type-re"  placeholder="新闻类型(dl,ocg,gonglue,card)" required autocomplete="off" class="form-control" value="<%= newsdata.type%>">
+
+    <div class="panel panel-default" >
+      <div class="panel-heading">展示图片(最多三张)</div>
+      <input name="files" id="files-resel" type="file"  />
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">内容</div>
+      <script id="editor-reload" type="text/plain" style="height:500px;">
+      </script>
+    </div>
+
+    <button type="button" class="btn btn-lg btn-primary" id="btn_re_git">修改</button>
+  </form>
+
+</div>
+
+<script type="text/javascript">
+  $(function() {
+    var images = "<%= newsdata.image_list%>"
+    image_list = [];
+    if (images) {
+      image_list = images.split(",");// 在每个逗号(,)处进行分解。
+    }
+    console.log(image_list);
+    $("#files-resel").kendoUpload({
+       async: {
+         saveUrl: "/upload",
+         autoUpload: true
+       },
+       success: onSuccess,
+     });
+
+     function onSuccess(e) {
+       image_list.push("http://" + window.location.host +"/images/" + getFileInfo(e));
+       console.log(image_list);
+     }
+
+    var ue = UE.getEditor('editor-reload');
+    var content = $('<div />').html("<%= newsdata.content%>").text();
+    ue.ready(function () {
+      ue.setContent(content);
+    })
+    $('#btn_re_git').on('click',function () {
+      var title = $('#title-re').val();
+      var author = $("#author-re").val();
+      var webpath= $("#webpath-re").val();
+      var content = ue.getContent();
+      var type = $("#type-re").val();
+      var data = {
+        title: title,
+        author: author,
+        webpath: webpath,
+        content:content,
+        image_list: image_list,
+        id: "<%= newsdata._id%>",
+        type: type
+      }
+
+      fetch('/changedlnews',{
+        method:'POST',
+        body: JSON.stringify(data),
+        headers: new Headers({ "Content-Type": "application/json" })// add headers
+        }).then(function (response) {
+          image_list = [];
+          window.location.href = '/editnews';
+        }).catch(function (err) {
+      })
+    })
+
+
+  })
+</script>

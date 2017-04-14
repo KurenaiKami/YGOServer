@@ -1,6 +1,7 @@
 var express = require('express');
 const path = require('path');
 var uploadDir = path.join( 'public/images/')
+var uploadVideo = path.join( 'public/videos/')
 var router = express.Router();
 var bodyParser = require('body-parser');
 
@@ -8,6 +9,7 @@ router.use(bodyParser.json());
 
 var User = require('../schemas/user');
 var DLNews = require('../schemas/DLNews');
+var Videos = require("../schemas/VideoSchema")
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -37,11 +39,15 @@ router.post('/login',function (req,res) {
 
 
 router.get("/admin",function(req,res){
-	res.render('index',{menu: 'news'});
+	res.render('index',{menu: 'news',newsdata:{}});
+})
+
+router.get('/video',function (req,res) {
+	res.render('Video/VideoView.html',{})
 })
 
 router.get('/editnews',function (req,res) {
-	res.render('index',{menu: "list"})
+	res.render('index',{menu: "list",newsdata:{}})
 })
 
 router.get('/viewnews',function (req,res) {
@@ -58,12 +64,22 @@ router.get('/viewnews',function (req,res) {
 	})
 })
 
+router.get('/videolist',function (req,res) {
+	res.render('Video/VideoGrid');
+})
+
 router.post("/upload",function (req,res) {
 	if (!req.files) {
 		return res.status(400).send('No files were uploaded')
 	}
 	var sampleFile = req.files.files;
-  var uploadPath = path.join(uploadDir, sampleFile.name);
+	if (sampleFile.mimetype == 'video/mp4') {
+		uppath = uploadVideo;
+	}
+	else {
+		uppath = uploadDir;
+	}
+  var uploadPath = path.join(uppath, sampleFile.name);
 	// Use the mv() method to place the file somewhere on your server
   sampleFile.mv(uploadPath, function(err) {
     if (err)
@@ -93,7 +109,6 @@ router.post('/dlnews',function(req,res){
 		if (err) {
 			res.json({code: '201',error: err});
 		}
-		image_list = [];
 		res.send(200);
 	});
 })
@@ -119,7 +134,51 @@ router.post('/changedlnews',function (req,res) {
 		if (err) {
 			res.json(err);
 		}
-		res.send("");
+		res.send(200);
+	})
+
+})
+
+router.get('/removenews',function (req,res) {
+	var query_doc = {_id: req.query.id};
+	DLNews.findByIdAndRemove(query_doc,function (err) {
+		if (err) {
+			res.json(err);
+		}
+		else
+		{
+			res.render('index',{menu: "list",newsdata:{}} )
+		}
+	})
+})
+
+
+router.get('/removevideos',function (req,res) {
+	Videos.findByIdAndRemove({_id: req.query.id},function (err) {
+		if (err) {
+			res.json(err);
+		}
+		else{
+			res.render('Video/VideoGrid',{});
+		}
+	})
+})
+
+router.post('/video',function (req,res) {
+	var video = new Videos({
+		title: req.body.title,
+		author: req.body.author,
+		video: req.body.video,
+		image: req.body.image
+	});
+
+	video.save(function (err) {
+		if (err) {
+			res.json(err);
+		}
+		else {
+			res.send(200);
+		}
 	})
 
 })
@@ -141,6 +200,40 @@ router.get('/getlist',function (req,res) {
 		}
 		else {
 			DLNews.find(function (err,result) {
+				if (err) {
+					res.json(err);
+				}
+				else {
+					var  totalPages=0;
+					if(result.length%limitpage==0)
+					{
+					    totalPages=result.length/limitpage;
+					}
+					else
+					{
+					    totalPages=parseInt(result.length/limitpage)+1;
+					}
+					data = {currentpage: parseInt(page), totalpage: totalPages ,newslist: docs}
+					res.json(data);
+				}
+
+			})
+		}
+	})
+})
+
+router.get('/getvideolist',function (req,res) {
+	var page = req.query.id || 1;
+	var query = Videos.find({});
+	limitpage = 10;
+	query.skip((page - 1) * limitpage);
+	query.limit(limitpage);
+	query.exec(function (err,docs) {
+		if (err) {
+			res.json(err);
+		}
+		else {
+			Videos.find(function (err,result) {
 				if (err) {
 					res.json(err);
 				}

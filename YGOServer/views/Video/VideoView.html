@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <%  include ../header.html %>
+
+    <script type="text/javascript" charset="utf-8" src="/ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/ueditor/ueditor.all.min.js"> </script>
+    <script type="text/javascript" charset="utf-8" src="/ueditor/lang/zh-cn/zh-cn.js"> </script>
+
+  </head>
+  <body>
+    <% include ../admin/Navigation.html %>
+    <div class="container-top">
+      <div class="row">
+        <div class="col-md-2">
+          <% include ../sider.html %>
+        </div>
+
+        <div class="col-md-6">
+          <form class="form">
+            <h2 class="form-signin-heading">新增视频资讯</h2>
+            <input type="text" id="title" placeholder="标题" required autofocus autocomplete="off" class="form-control">
+            <input type="text" id="author" value="" placeholder="作者" required autocomplete="off" class="form-control">
+
+            <div class="panel panel-default" >
+              <div class="panel-heading">上传展示图片</div>
+              <input name="files" id="images" type="file" />
+            </div>
+
+            <div class="panel panel-default" >
+              <div class="panel-heading">上传视频</div>
+              <input name="files" id="files" type="file" />
+            </div>
+
+            <button type="button" class="btn btn-lg btn-primary" id="btn_video">提交</button>
+          </form>
+
+        </div>
+
+        <div class="col-md-4">
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
+
+
+<script>
+$(function() {
+
+  $("#files").kendoUpload({
+     async: {
+       saveUrl: "/upload",
+       autoUpload: true
+     },
+     success: onSuccess,
+   });
+
+   $("#images").kendoUpload({
+      async: {
+        saveUrl: "/upload",
+        autoUpload: true
+      },
+      success: onSuccessImage,
+    });
+
+   function onSuccess(e) {
+     video = "http://" + window.location.host +"/videos/" + getFileInfo(e);
+   }
+
+   function onSuccessImage(e) {
+     image = "http://" + window.location.host +"/images/" + getFileInfo(e);
+   }
+
+   function getFileInfo(e) {
+     return $.map(e.files, function(file) {
+         var info = file.name;
+         return info;
+     });
+   }
+
+   $("#btn_video").on('click',function () {
+     title = $("#title").val();
+     author = $("#author").val();
+     var data = {
+       title: title,
+       author: author,
+       video: video,
+       image: image
+     };
+
+     fetch('/video',{
+       method: 'POST',
+       body: JSON.stringify(data),
+       headers: new Headers({ "Content-Type": "application/json" })// add headers
+     }).then(function (response) {
+       window.location.href = '/videolist';
+     }).catch(function (err) {
+
+     })
+
+   })
+
+})
+</script>

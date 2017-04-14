@@ -40,7 +40,7 @@ $(function() {
 
    function onSuccess(e) {
      image_list.push("http://" + window.location.host +"/images/" + getFileInfo(e));
-     console.log(image_list);
+     console.log(image_list+"....");
    }
 
    function getFileInfo(e) {
@@ -72,6 +72,7 @@ $(function() {
         headers: new Headers({ "Content-Type": "application/json" })// add headers
         }).then(function (response) {
           image_list = [];
+          window.location.href = '/editnews';
         }).catch(function (err) {
       })
 

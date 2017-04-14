@@ -18,8 +18,17 @@
         </div>
 
         <div class="col-md-6">
-        
-          <% include DL/DLChange.html %>
+          <div ng-show="'{{menu}}'==='news'">
+            <% include DL/DLView.html %>
+          </div>
+
+          <div ng-show="'{{menu}}'==='list'">
+            <% include grid.html %>
+          </div>
+
+          <div ng-show="'{{menu}}'==='editor'">
+            <% include DL/DLChange.html %>
+          </div>
         </div>
 
         <div class="col-md-4">

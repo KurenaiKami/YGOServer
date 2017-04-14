@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <%  include ../header.html %>
+    <link rel="stylesheet" href="/stylesheets/view.css">
+    <script src="javascripts/bootstrap-paginator.js" charset="utf-8"></script>
+
+    <script type="text/javascript" charset="utf-8" src="/ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/ueditor/ueditor.all.min.js"> </script>
+    <script type="text/javascript" charset="utf-8" src="/ueditor/lang/zh-cn/zh-cn.js"> </script>
+
+  </head>
+  <body ng-app="App" ng-controller="yugiohController">
+    <% include ../admin/Navigation.html %>
+    <div class="container-top">
+      <div class="row">
+        <div class="col-md-2">
+          <% include ../sider.html %>
+        </div>
+
+        <div class="col-md-6">
+          <div class="project-list" >
+            <table class="table table-hover" >
+            	<tbody ng-repeat="item in newslist">
+              	<tr>
+                    <td class="project-title">
+                        <a ng-href="/viewnews?id={{item._id}}">{{item.title}}</a>
+                        <br/>
+                        <small>作者 {{item.author}}  </small>
+                    </td>
+                    <td class="project-actions">
+                        <a ng-href="/viewvideos?id={{item._id}}" class="btn btn-default marginTB-xs"><i class="fa fa-folder"></i>  查看 </a>
+                        <a href="/removevideos?id={{item._id}}" class="btn btn-danger marginTB-xs"><i class="fa fa-times-circle m-right-xs"></i> 删除 </a>
+                    </td>
+                </tr>
+
+            	</tbody>
+            </table>
+
+            <ul class="pagination" id="pageui">
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
+
+
+<script>
+  var App = angular.module('App', []);
+  App.controller('yugiohController', function($scope, $http) {
+      console.log("2312");
+      $http.get("/getvideolist")
+      .success(function(response) {
+        console.log(response);
+        $scope.newslist = response.newslist;
+        var options = {
+            bootstrapMajorVersion:3,
+            currentPage: parseInt(response.currentpage),//当前页面
+            numberOfPages: response.totalpage,//一页显示几个按钮（在ul里面生成5个li）
+            totalPages:response.totalpage, //总页数,
+            onPageClicked: function (event,originalEvent,type,page) {
+              $http.get("/getlist?id=" + page)
+              .success(function (limitresponse) {
+                  console.log(limitresponse);
+                  $scope.newslist = limitresponse.newslist;
+              })
+
+            }
+        }
+        angular.element("#pageui").bootstrapPaginator(options);
+      });
+  });
+</script>
